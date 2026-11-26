@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rogori - Your next favorite game is here</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #111216; color: #ffffff; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Barra superior */
+    header { background-color: #191b22; border-bottom: 1px solid #2b2e3b; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #fff; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+    .logo span { background: #3b82f6; padding: 3px 9px; border-radius: 6px; font-size: 16px; }
+    .nav-links { display: flex; gap: 18px; align-items: center; }
+    .nav-btn { background: transparent; border: none; color: #b0b5c4; font-weight: 600; cursor: pointer; font-size: 15px; }
+    .nav-btn:hover, .nav-btn.active { color: #ffffff; }
+    .user-stats { display: flex; align-items: center; gap: 14px; font-size: 14px; font-weight: bold; }
+    .coin-badge { background: #232734; border: 1px solid #3a3f54; padding: 5px 12px; border-radius: 20px; color: #fbbf24; }
+    .owner-tag { background: #ef4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; }
+
+    /* Contenedor de Registro / Login */
+    .auth-wrapper { display: flex; justify-content: center; align-items: center; flex: 1; padding: 40px 15px; gap: 50px; flex-wrap: wrap; }
+    .hero-text { max-width: 440px; }
+    .hero-text h1 { font-size: 38px; line-height: 1.2; margin-bottom: 14px; }
+    .hero-text p { color: #9ca3af; font-size: 17px; line-height: 1.5; }
+    .card { background-color: #191b22; border: 1px solid #2b2e3b; border-radius: 12px; padding: 28px; width: 100%; max-width: 410px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+    .card h2 { margin-bottom: 6px; font-size: 22px; }
+    .card p.sub { color: #9ca3af; font-size: 13px; margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; color: #b0b5c4; margin-bottom: 5px; font-weight: 600; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; background: #111216; border: 1px solid #2b2e3b; border-radius: 8px; color: white; font-size: 14px; }
+    .bday-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .btn-primary { width: 100%; padding: 12px; background: #3b82f6; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 6px; }
+    .btn-primary:hover { background: #2563eb; }
+    .switch-link { text-align: center; margin-top: 14px; font-size: 13px; color: #9ca3af; }
+    .switch-link a { color: #3b82f6; text-decoration: none; cursor: pointer; font-weight: 600; }
+
+    /* Modal inicial */
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; padding: 16px; z-index: 50; }
+    .modal-box { background: #191b22; border: 1px solid #333747; border-radius: 12px; max-width: 460px; width: 100%; padding: 26px; }
+    .modal-box h3 { margin-bottom: 10px; font-size: 20px; }
+    .modal-box p { color: #b0b5c4; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+    .check-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: #d1d5db; margin-bottom: 12px; }
+
+    /* Panel Principal (Dashboard) */
+    .dashboard { max-width: 1100px; margin: 0 auto; padding: 30px 20px; width: 100%; display: none; }
+    .admin-panel { background: #22161c; border: 1px solid #ef4444; padding: 20px; border-radius: 10px; margin-bottom: 26px; display: none; }
+    .admin-panel h3 { color: #f87171; margin-bottom: 10px; }
+    .admin-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .admin-controls input { padding: 8px 12px; background: #111216; border: 1px solid #3f3f46; border-radius: 6px; color: white; }
+    .btn-danger { background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-top: 16px; }
+    .item-card { background: #191b22; border: 1px solid #2b2e3b; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+    .item-thumb { height: 130px; background: linear-gradient(135deg, #1e293b, #334155); display: flex; justify-content: center; align-items: center; font-size: 38px; }
+    .item-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .item-info h4 { margin-bottom: 6px; font-size: 16px; }
+    .item-info p { font-size: 12px; color: #9ca3af; margin-bottom: 12px; }
+    .btn-play { background: #10b981; color: white; border: none; padding: 9px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+    .btn-buy { background: #3b82f6; color: white; border: none; padding: 9px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+
+    footer { text-align: center; padding: 20px; font-size: 12px; color: #6b7280; border-top: 1px solid #1f222c; margin-top: auto; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Aviso Inicial -->
+  <div class="modal-bg" id="termsModal">
+    <div class="modal-box">
+      <h3>Before you continue</h3>
+      <p>Rogori is not Roblox. We are not affiliated with, endorsed by, or connected to Roblox Corporation in any way.</p>
+      <div class="check-item">
+        <input type="checkbox" id="chk1" checked />
+        <label for="chk1">I agree that I will not share any personal, identifying, sensitive information.</label>
+      </div>
+      <div class="check-item">
+        <input type="checkbox" id="chk2" checked />
+        <label for="chk2">I understand that Rogori is an independent, unofficial project and is not operated by Roblox Corporation.</label>
+      </div>
+      <button class="btn-primary" onclick="acceptTerms()">Accept</button>
+    </div>
+  </div>
+
+  <!-- Barra de Navegación -->
+  <header>
+    <div class="logo"><span>R</span> Rogori</div>
+    <div class="nav-links hidden" id="navMenu">
+      <button class="nav-btn active" onclick="showTab('gamesTab')">Juegos</button>
+      <button class="nav-btn" onclick="showTab('catalogTab')">Catálogo</button>
+    </div>
+    <div class="user-stats hidden" id="userBar">
+      <span id="displayUserName">Usuario</span>
+      <span id="ownerBadge" class="owner-tag hidden">OWNER</span>
+      <span class="coin-badge">🪙 <span id="userCoins">100</span> R$</span>
+      <button class="nav-btn" onclick="logout()" style="color:#f87171;">Salir</button>
+    </div>
+  </header>
+
+  <!-- Pantalla de Registro y Login -->
+  <main class="auth-wrapper" id="authSection">
+    <div class="hero-text">
+      <h1>Your next favorite game is here.</h1>
+      <p>Jump in with friends on Rogori. Crea tu cuenta, explora mundos clásicos y personaliza tu personaje.</p>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div class="card" id="signupCard">
+      <h2>Create account</h2>
+      <p class="sub">Regístrate como <b>rokori</b> o <b>rogori</b> para obtener rango Owner.</p>
+      <div class="form-group">
+        <label>Birthday</label>
+        <div class="bday-row">
+          <select><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option></select>
+          <select><option>1</option><option>15</option><option>28</option></select>
+          <select><option>2008</option><option>2005</option><option>2000</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="regUser" placeholder="Ej: rogori" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPass" placeholder="Crea una contraseña" />
+      </div>
+      <button class="btn-primary" onclick="registerUser()">Sign up</button>
+      <div class="switch-link">Already have an account? <a onclick="toggleAuth('login')">Log in</a></div>
+    </div>
+
+    <!-- Formulario de Login -->
+    <div class="card hidden" id="loginCard">
+      <h2>Log in to Rogori</h2>
+      <p class="sub">Ingresa con tu cuenta creada.</p>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="logUser" placeholder="Tu usuario" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="logPass" placeholder="Tu contraseña" />
+      </div>
+      <button class="btn-primary" onclick="loginUser()">Log in</button>
+      <div class="switch-link">Don't have an account? <a onclick="toggleAuth('signup')">Sign up</a></div>
+    </div>
+  </main>
+
+  <!-- Panel Principal de la Plataforma -->
+  <section class="dashboard" id="dashboardSection">
+    <!-- Panel Exclusivo del Owner -->
+    <div class="admin-panel" id="adminPanel">
+      <h3>👑 Panel de Administración (Owner)</h3>
+      <p style="font-size:13px; color:#d1d5db;">Tienes control total sobre Rogori. Puedes agregar nuevos juegos al inicio o darte monedas.</p>
+      <div class="admin-controls">
+        <input type="text" id="newGameTitle" placeholder="Nombre del nuevo juego" />
+        <input type="text" id="newGameDesc" placeholder="Descripción corta" />
+        <button class="btn-danger" onclick="addGame()">+ Publicar Juego</button>
+        <button class="btn-primary" style="width:auto; margin:0; padding:8px 14px;" onclick="addCoins()">+10,000 Monedas</button>
+      </div>
+    </div>
+
+    <!-- Pestaña Juegos -->
+    <div id="gamesTab">
+      <h2>Juegos Destacados</h2>
+      <div class="grid-cards" id="gamesGrid"></div>
+    </div>
+
+    <!-- Pestaña Catálogo -->
+    <div id="catalogTab" class="hidden">
+      <h2>Catálogo de Rogori</h2>
+      <div class="grid-cards" id="catalogGrid"></div>
+    </div>
+  </section>
+
+  <footer>
+    © 2026 Rogori — Proyecto independiente no afiliado a Roblox Corporation.
+  </footer>
+
+  <script>
+    const defaultGames = [
+      { title: "Crossroads Classic", desc: "Batalla clásica con espadas y lanzacohetes.", icon: "⚔️" },
+      { title: "Natural Disaster Survival", desc: "Sobrevive a tornados, terremotos e inundaciones.", icon: "🌪️" },
+      { title: "Work at a Pizza Place", desc: "Trabaja en equipo para atender pedidos.", icon: "🍕" },
+      { title: "Sword Fights on the Heights", desc: "Duelos en las alturas con espadas especiales.", icon: "🏰" }
+    ];
+
+    const catalogItems = [
+      { name: "Dominus Empyreus", price: 5000, icon: "👑" },
+      { name: "Valkyrie Helm", price: 1500, icon: "🪖" },
+      { name: "Classic Fedora", price: 500, icon: "🎩" },
+      { name: "Rogori Developer Cap", price: 50, icon: "🧢" }
+    ];
+
+    function acceptTerms() {
+      if (!document.getElementById('chk1').checked || !document.getElementById('chk2').checked) {
+        alert("Debes aceptar las casillas para continuar.");
+        return;
+      }
+      document.getElementById('termsModal').classList.add('hidden');
+    }
+
+    function toggleAuth(mode) {
+      document.getElementById('signupCard').classList.toggle('hidden', mode === 'login');
+      document.getElementById('loginCard').classList.toggle('hidden', mode === 'signup');
+    }
+
+    function registerUser() {
+      const user = document.getElementById('regUser').value.trim();
+      const pass = document.getElementById('regPass').value.trim();
+      if (!user || !pass) return alert("Completa usuario y contraseña.");
+
+      const users = JSON.parse(localStorage.getItem('rogori_users') || '{}');
+      if (users[user.toLowerCase()]) return alert("Ese usuario ya existe.");
+
+      const isOwner = (user.toLowerCase() === 'rokori' || user.toLowerCase() === 'rogori');
+      const newUser = { username: user, password: pass, isOwner, coins: isOwner ? 999999 : 100 };
+      users[user.toLowerCase()] = newUser;
+
+      localStorage.setItem('rogori_users', JSON.stringify(users));
+      localStorage.setItem('rogori_current', JSON.stringify(newUser));
+      loadDashboard(newUser);
+    }
+
+    function loginUser() {
+      const user = document.getElementById('logUser').value.trim().toLowerCase();
+      const pass = document.getElementById('logPass').value.trim();
+      const users = JSON.parse(localStorage.getItem('rogori_users') || '{}');
+
+      if (!users[user] || users[user].password !== pass) {
+        return alert("Usuario o contraseña incorrectos.");
+      }
+      localStorage.setItem('rogori_current', JSON.stringify(users[user]));
+      loadDashboard(users[user]);
+    }
+
+    function loadDashboard(user) {
+      document.getElementById('termsModal').classList.add('hidden');
+      document.getElementById('authSection').classList.add('hidden');
+      document.getElementById('dashboardSection').style.display = 'block';
+      document.getElementById('navMenu').classList.remove('hidden');
+      document.getElementById('userBar').classList.remove('hidden');
+
+      document.getElementById('displayUserName').textContent = user.username;
+      document.getElementById('userCoins').textContent = user.coins;
+      document.getElementById('ownerBadge').classList.toggle('hidden', !user.isOwner);
+      document.getElementById('adminPanel').style.display = user.isOwner ? 'block' : 'none';
+
+      renderGames();
+      renderCatalog();
+    }
+
+    function renderGames() {
+      const savedGames = JSON.parse(localStorage.getItem('rogori_games') || JSON.stringify(defaultGames));
+      const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = savedGames.map(g => `
+        <div class="item-card">
+          <div class="item-thumb">${g.icon || '🎮'}</div>
+          <div class="item-info">
+            <div>
+              <h4>${g.title}</h4>
+              <p>${g.desc}</p>
+            </div>
+            <button class="btn-play" onclick="alert('Iniciando cliente de Rogori para: ${g.title}...')">▶ Play</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = catalogItems.map(item => `
+        <div class="item-card">
+          <div class="item-thumb">${item.icon}</div>
+          <div class="item-info">
+            <div>
+              <h4>${item.name}</h4>
+              <p>Precio: 🪙 ${item.price} R$</p>
+            </div>
+            <button class="btn-buy" onclick="buyItem(${item.price}, '${item.name}')">Comprar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function buyItem(price, name) {
+      const current = JSON.parse(localStorage.getItem('rogori_current'));
+      if (current.coins < price) return alert("No tienes suficientes monedas.");
+      current.coins -= price;
+      updateUser(current);
+      alert("¡Compraste " + name + "!");
+    }
+
+    function addCoins() {
+      const current = JSON.parse(localStorage.getItem('rogori_current'));
+      current.coins += 10000;
+      updateUser(current);
+    }
+
+    function addGame() {
+      const title = document.getElementById('newGameTitle').value.trim();
+      const desc = document.getElementById('newGameDesc').value.trim();
+      if (!title) return alert("Escribe el nombre del juego.");
+      const savedGames = JSON.parse(localStorage.getItem('rogori_games') || JSON.stringify(defaultGames));
+      savedGames.unshift({ title, desc: desc || "Juego creado por el Owner.", icon: "🕹️" });
+      localStorage.setItem('rogori_games', JSON.stringify(savedGames));
+      document.getElementById('newGameTitle').value = '';
+      document.getElementById('newGameDesc').value = '';
+      renderGames();
+    }
+
+    function updateUser(user) {
+      const users = JSON.parse(localStorage.getItem('rogori_users') || '{}');
+      users[user.username.toLowerCase()] = user;
+      localStorage.setItem('rogori_users', JSON.stringify(users));
+      localStorage.setItem('rogori_current', JSON.stringify(user));
+      document.getElementById('userCoins').textContent = user.coins;
+    }
+
+    function showTab(tabId) {
+      document.getElementById('gamesTab').classList.toggle('hidden', tabId !== 'gamesTab');
+      document.getElementById('catalogTab').classList.toggle('hidden', tabId !== 'catalogTab');
+    }
+
+    function logout() {
+      localStorage.removeItem('rogori_current');
+      location.reload();
+    }
+
+    window.onload = () => {
+      const current = JSON.parse(localStorage.getItem('rogori_current'));
+      if (current) loadDashboard(current);
+    };
+  </script>
+</body>
+</html>
